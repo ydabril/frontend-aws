@@ -1,0 +1,48 @@
+<div class="auth-container">
+    <h2 *ngIf="!isConfirmMode">{{ isLoginMode ? 'Iniciar sesión' : 'Registrarse' }}</h2>
+    <h2 *ngIf="isConfirmMode">Confirmar cuenta</h2>
+  
+    <!-- FORMULARIO DE LOGIN/REGISTRO -->
+    <form *ngIf="!isConfirmMode" [formGroup]="authForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label>Email:</label>
+        <input type="email" formControlName="email" placeholder="Ingrese su correo" />
+        <div class="error" *ngIf="authForm.controls['email'].invalid && authForm.controls['email'].touched">
+          Email inválido.
+        </div>
+      </div>
+  
+      <div class="form-group">
+        <label>Contraseña:</label>
+        <input type="password" formControlName="password" placeholder="Ingrese su contraseña" />
+        <div class="error" *ngIf="authForm.controls['password'].invalid && authForm.controls['password'].touched">
+          La contraseña debe tener al menos 6 caracteres.
+        </div>
+      </div>
+  
+      <button type="submit" [disabled]="authForm.invalid">
+        {{ isLoginMode ? 'Iniciar sesión' : 'Registrarse' }}
+      </button>
+  
+      <p>
+        {{ isLoginMode ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?' }}
+        <a [routerLink]="isLoginMode ? '/register' : '/login'">
+          {{ isLoginMode ? 'Regístrate aquí' : 'Inicia sesión aquí' }}
+        </a>
+      </p>
+    </form>
+  
+    <!-- FORMULARIO DE CONFIRMACIÓN -->
+    <form *ngIf="isConfirmMode" [formGroup]="confirmForm" (ngSubmit)="onConfirm()">
+      <div class="form-group">
+        <label>Ingrese el código de confirmación:</label>
+        <input type="text" formControlName="code" placeholder="Código recibido por email" />
+        <div class="error" *ngIf="confirmForm.controls['code'].invalid && confirmForm.controls['code'].touched">
+          Código inválido.
+        </div>
+      </div>
+  
+      <button type="submit" [disabled]="confirmForm.invalid">Confirmar</button>
+    </form>
+  </div>
+  
