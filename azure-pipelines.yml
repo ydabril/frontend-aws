@@ -1,5 +1,5 @@
 trigger:
-- main  # Asegúrate de que sea la rama correcta
+- main
 
 pool: Default
 
@@ -10,12 +10,16 @@ steps:
   displayName: 'Install Node.js'
 
 - script: |
-    npm install -g @angular/cli@15
-  displayName: 'Install Angular CLI'
+    npm install -g @angular/cli@15 @aws-amplify/cli
+  displayName: 'Install Angular & Amplify CLI'
 
 - script: |
     npm install
   displayName: 'Install project dependencies'
+
+- script: |
+    amplify pull --appId dzhmw133lv1v1 --envName dev --yes
+  displayName: 'Pull AWS Amplify environment'
 
 - script: |
     ng build --configuration=production
@@ -40,3 +44,4 @@ steps:
     awsSubCommand: 'create-invalidation'
     awsArguments: '--distribution-id E1TNJZT63JZO07 --paths "/*"'
   displayName: 'Invalidate CloudFront'
+
