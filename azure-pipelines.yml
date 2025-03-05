@@ -1,9 +1,34 @@
-trigger:
-- main
-
-pool:
-  name: Default
+pool: Default
 
 steps:
-- script: echo "El agente está funcionando correctamente"
-  displayName: "Prueba de agente"
+- task: NodeTool@0
+  inputs:
+    versionSpec: '20.x'
+  displayName: 'Install Node.js'
+
+# Instalar Angular CLI y construir el proyecto
+- script: |
+    npm install -g @angular/cli@15
+    npm install
+    ng build --configuration=production
+  displayName: 'npm install and build'
+
+# Subir archivos a S3
+- task: AWSCLI@1
+  inputs:
+    awsCredentials: 'aws-connection'
+    regionName: 'us-east-2'
+    awsCommand: 's3'
+    awsSubCommand: 'sync'
+    awsArguments: 'dist/frontend-aws s3://app-fronted-aws --delete'
+  displayName: 'Upload to S3'
+
+# Invalidar la caché de CloudFront
+- task: AWSCLI@1
+  inputs:
+    awsCredentials: 'aws-connection'
+    regionName: 'us-east-2'
+    awsCommand: 'cloudfront'
+    awsSubCommand: 'create-invalidation'
+    awsArguments: '--distribution-id E1TNJZT63JZO07 --paths "/*"'
+  displayName: 'Invalidate CloudFront'
