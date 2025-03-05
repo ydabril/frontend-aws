@@ -1,3 +1,6 @@
+trigger:
+- main  # Asegúrate de que sea la rama correcta
+
 pool: Default
 
 steps:
@@ -6,14 +9,21 @@ steps:
     versionSpec: '20.x'
   displayName: 'Install Node.js'
 
-# Instalar Angular CLI y construir el proyecto
 - script: |
     npm install -g @angular/cli@15
-    npm install
-    ng build --configuration=production
-  displayName: 'npm install and build'
+  displayName: 'Install Angular CLI'
 
-# Subir archivos a S3
+- script: |
+    npm install
+  displayName: 'Install project dependencies'
+
+- script: |
+    ng build --configuration=production
+  displayName: 'Build Angular project'
+
+- script: ls -la dist/
+  displayName: 'List contents of dist/'
+
 - task: AWSCLI@1
   inputs:
     awsCredentials: 'aws-connection'
@@ -23,11 +33,9 @@ steps:
     awsArguments: 'dist/frontend-aws s3://app-fronted-aws --delete'
   displayName: 'Upload to S3'
 
-# Invalidar la caché de CloudFront
 - task: AWSCLI@1
   inputs:
     awsCredentials: 'aws-connection'
-    regionName: 'us-east-2'
     awsCommand: 'cloudfront'
     awsSubCommand: 'create-invalidation'
     awsArguments: '--distribution-id E1TNJZT63JZO07 --paths "/*"'
